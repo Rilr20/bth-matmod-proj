@@ -4,6 +4,52 @@
 
 Jag har valt temperaturdata från SMHI. Datan är från 30 Augusti till 7 December 2021. Väderstationerna som valts är Karlskrona, Lund och Simrishamn. Tiderna för temperaturerna som kollas är klockan 6:00 och 18:00 på varje dag. 
 
+
+<table>
+<tr>
+    <th>Stad</th>
+    <th>Temperatur</th>
+    <th>Tid</th>
+    <th>Datum</th>
+</tr>
+<tr>
+    <td>Karlskrona</td>
+    <td>11.0</td>
+    <td>6:00</td>
+    <td>2021-08-24</td>
+</tr>
+<tr>
+    <td>Karlskrona</td>
+    <td>17.8</td>
+    <td>18:00</td>
+    <td>2021-08-24</td>
+</tr>
+<tr>
+    <td>Karlskrona</td>
+    <td>15.0</td>
+    <td>6:00</td>
+    <td>2021-08-25</td>
+</tr>
+<tr>
+    <td>Karlskrona</td>
+    <td>15.7</td>
+    <td>18:00</td>
+    <td>2021-08-25</td>
+</tr>
+<tr>
+    <td>Karlskrona</td>
+    <td>12.8</td>
+    <td>6:00</td>
+    <td>2021-08-26</td>
+</tr>
+<tr>
+    <td>Karlskrona</td>
+    <td>13.8</td>
+    <td>18:00</td>
+    <td>2021-08-26</td>
+</tr>
+</table>
+
 <!-- Introducera den data som valts och beskriv vad den visar och varifrån den kommer. Cirka 250 ord
 (halv A 4 ). Var tydliga med vad de olika variablerna beskriver och i vilken enhet de är i. Det kan vara
 en god idé att ha en mindre tabell med ett urval från datan för att lättare beskriva mätvärdena.

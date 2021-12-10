@@ -1,15 +1,17 @@
 import csv
 from os import name
 from posixpath import abspath
+import numpy as np
 import pandas as pd
 import math
 from datetime import datetime
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 import seaborn as sns
+from scipy.stats import norm
 
 def get_data():
-    paths = ["data/smhi-karlskrona", "data/smhi-lund", "data/smhi-simrishamn"]
+    paths = ["data/smhi-malmo", "data/smhi-lund", "data/smhi-simrishamn"]
     for path in paths:
         header = False
         with open(path + '.csv', 'r') as file:
@@ -39,6 +41,11 @@ def get_city(path):
     #             if len(row) > 0 and row[0] != 'Datum':
     #                 data.append(float(row[2]))
     #                 # print(row[2])
+    data['Datum'] = pd.to_datetime(data['Datum'].astype(str) + ' ' + data['Tid (UTC)'])
+    # Remove unused data columns
+    data.drop(['Tid (UTC)', 'Unnamed: 4', 'Tidsutsnitt:', 'Kvalitet'], inplace=True, axis=1)
+    data = data.set_index('Datum')
+    # return df
     return data
 
 def mean(data):
@@ -59,15 +66,16 @@ def std(data):
 
 def draw_plot(data):
     # print(data)
+    plt.figure(1)
     sns.set_theme(style='whitegrid')
     # tips = sns.load_dataset("tips")
     ax = sns.boxplot(x="city", y="temp", hue="time", data=data)
+    plt.title('Boxplot of temperature')
     # ax = sns.lineplot(x="datetime", y="temp", hue="city", data=data)
     # ax = sns.swarmplot(x="city", y="temp", data=data, color=".25")
-    plt.show()
 
 def create_data_frame():
-    cities = ['karlskrona', 'lund', 'simrishamn']
+    cities = ['malmo', 'lund', 'simrishamn']
     df = pd.dictionary = {
         'city': [],
         'datetime': [],
@@ -86,29 +94,134 @@ def create_data_frame():
                     df["temp"].append(float(row[2]))
     return df
 
+
+
+def get_df():
+    df_malmo = get_city("data/smhi-malmo_parsed.csv")
+    df_malmo = df_malmo.rename(columns={'Lufttemperatur' : 'TempMalmo'})
+    df_lund = get_city("data/smhi-lund_parsed.csv")
+    df_lund = df_lund.rename(columns={'Lufttemperatur' : 'TempLund'})
+    df_simrishamn = get_city("data/smhi-simrishamn_parsed.csv")
+    df_simrishamn = df_simrishamn.rename(columns={'Lufttemperatur' : 'TempSimrishamn'})
+    return [df_malmo, df_lund, df_simrishamn]
+
+def print_mean_std():
+    res = get_df()
+    df_malmo = res[0]
+    df_lund = res[1]
+    df_simrishamn = res[2]
+
+    print("mean of datas")
+    print("City        Mean Temp")
+    malmo_mean =  df_malmo.mean().to_string()
+    lund_mean = df_lund.mean().to_string()
+    simrishamn_mean = df_simrishamn.mean().to_string()
+    print(malmo_mean)
+    print(lund_mean)
+    print(simrishamn_mean)
+    
+    print("\nstandard deviation of datas")
+    print("City        Standard Deviation")
+    malmo_std = df_malmo.std().to_string()
+    lund_std = df_lund.std().to_string()
+    simrishamn_std = df_simrishamn.std().to_string()
+    print(malmo_std)
+    print(lund_std)
+    print(simrishamn_std)
+
+def correlation():
+    res = get_df()
+    df_malmo = res[0]
+    df_lund = res[1]
+    df_simrishamn = res[2]
+
+    df = pd.concat([df_lund, df_malmo, df_simrishamn], axis = 1)
+    df = df.dropna()
+    X = df.index.map(datetime.toordinal).values.reshape(-1, 1) 
+    Y = df.iloc[:,1].values.reshape(-1, 1)
+    linear_reg = LinearRegression()
+    linear_reg.fit(X, Y)
+    Y_pred = linear_reg.predict(X)
+    plt.figure()
+    residual = df['TempMalmo'].values - Y_pred.squeeze()
+    df['Residual U'] = residual
+    df['Residual U'].plot()
+    residual_variance = df['Residual U'].var()
+   
+    correlation = df[df.columns[[0,1,2]]].corr()
+
+    sns.heatmap(correlation)
+    plt.title('Correlation between sites')
+
+def normaldist():
+    res = get_df()
+    df_malmo = res[0]
+    malmo_mean =  df_malmo.mean()
+    malmo_std =  df_malmo.std()
+    df_lund = res[1]
+    lund_mean = df_lund.mean()
+    lund_std = df_lund.std()
+
+    df_simrishamn = res[2]
+    simrishamn_mean = df_simrishamn.mean()
+    simrishamn_std = df_simrishamn.std()
+
+    plt.figure('normal distribution on malmö')
+    x = np.arange(float(malmo_mean)-30, float(malmo_mean)+30, 0.001)
+    plt.plot(x, norm.pdf(x, malmo_mean, malmo_std), color='blue', linewidth=1)
+    plt.figure('normal distribution on lund')
+    x = np.arange(float(lund_mean)-30, float(lund_mean)+30, 0.001)
+    plt.plot(x, norm.pdf(x, lund_mean, lund_std), color='green', linewidth=1)
+    plt.figure('normal distribution on simrishamn')
+    x = np.arange(float(simrishamn_mean)-30, float(simrishamn_mean)+30, 0.001)
+    plt.plot(x, norm.pdf(x, simrishamn_mean, simrishamn_std), color='red', linewidth=1)
+    plt.show()
+
+def linear_regression():
+    #med 95% confidensinterval
+    res = get_df()
+    df_malmo = res[0]
+    df_lund = res[1]
+    df_simrishamn = res[2]
+    
+
+
 if __name__ == "__main__":
     get_data()
     mean_test = mean([21.3232, 38.3422, 12.7212, 41.6178])
     # print(mean_test)
     std_test = std([21.3232, 38.3422, 12.7212, 41.6178])
     # print(std_test)
-    karlskrona_data = get_city("data/smhi-karlskrona_parsed.csv")
-    lund_data = get_city("data/smhi-lund_parsed.csv")
-    simrishamn_data = get_city("data/smhi-simrishamn_parsed.csv")
+    
     # print(simrishamn_data)
-    # print(mean(karlskrona_data))
+    # print(mean(malmo_data))
     # print(mean(lund_data))
     # print(mean(simrishamn_data))
-    data = [karlskrona_data, lund_data, simrishamn_data]
-    # plt.boxplot([karlskrona_data, lund_data, simrishamn_data])
-    # plt.bar(['Karlskrona', "Lund", "Simrishamn"], [-5, 0, 5, 10])
-    # plt.xlabel(['Karlskrona', "Lund", "Simrishamn"])
+    # data = [malmo_data, lund_data, simrishamn_data]
+    # plt.boxplot([malmo_data, lund_data, simrishamn_data])
+    # plt.bar(['malmo', "Lund", "Simrishamn"], [-5, 0, 5, 10])
+    # plt.xlabel(['malmo', "Lund", "Simrishamn"])
     # plt.boxplot()
     # ax = sns.stripplot(x="Pclass", y="Age",data=df)
     # ax = sns.boxplot(x="day", y="total_bill", data=data)
     # ax = sns.swarmplot(x="day", y="total_bill", data=data, color=".25")
     # plt.show()
-    print()
-    dataframe = create_data_frame()
 
+
+    
+    dataframe = create_data_frame()
+    # print(dataframe)
+    print_mean_std()
     draw_plot(dataframe)
+    correlation()
+    # print(type(dataframe))
+    # new = pd.DataFrame.from_dict(dataframe)
+    # print(new)
+    # correlation = dataframe[dataframe.columns[[0,1,2]]].corr()
+    # sns.heatmap(correlation)
+    # plt.title('Correlation between sites')
+    # print(correlation)
+    # plt.figure(2)
+
+    normaldist()
+    plt.show()
