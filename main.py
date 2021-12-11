@@ -1,6 +1,6 @@
 import csv
 from os import name
-from posixpath import abspath
+from posixpath import abspath, split
 import numpy as np
 import pandas as pd
 import math
@@ -9,7 +9,8 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 import seaborn as sns
 from scipy.stats import norm
-#TODO: UPPGIFT 2 MAX OCH MIN VÄRDE
+import statistics
+#DONE: UPPGIFT 2 MAX OCH MIN VÄRDE
 #TODO: LINJÄR REGRESSION MED 95% KONFIDENSINTERVALL
 #TODO: TRANSFORMERAD DATA LOGARITMISK FUNKTION
 #TODO: RESIDUALANALYS
@@ -117,49 +118,68 @@ def get_df():
 
 def print_mean_std_max_min():
     """
+    TODO: GÖR EN TABELL
     Uppgift 2: Medelvärde, Standardavvikelse. 
     """
     res = get_df()
     df_malmo = res[0]
     df_lund = res[1]
     df_simrishamn = res[2]
-
-    print("mean of datas")
-    print("City        Mean Temp")
+    fig = plt.figure()
+    # print("mean of datas")
+    # print("City        Mean Temp")
     malmo_mean =  df_malmo.mean().to_string()
     lund_mean = df_lund.mean().to_string()
     simrishamn_mean = df_simrishamn.mean().to_string()
-    print(malmo_mean)
-    print(lund_mean)
-    print(simrishamn_mean)
+    # print(malmo_mean)
+    # print(lund_mean)
+    # print(simrishamn_mean)
     
-    print("\nstandard deviation of datas")
-    print("City        Standard Deviation")
+    # print("\nstandard deviation of datas")
+    # print("City        Standard Deviation")
     malmo_std = df_malmo.std().to_string()
     lund_std = df_lund.std().to_string()
     simrishamn_std = df_simrishamn.std().to_string()
-    print(malmo_std)
-    print(lund_std)
-    print(simrishamn_std)
+    # print(malmo_std)
+    # print(lund_std)
+    # print(simrishamn_std)
 
-    print("\nMax-value")
-    print("City        Max Temp")
+    # print("\nMax-value")
+    # print("City        Max Temp")
     malmo_max =  df_malmo.max().to_string()
     lund_max = df_lund.max().to_string()
     simrishamn_max = df_simrishamn.max().to_string()
-    print(malmo_max)
-    print(lund_max)
-    print(simrishamn_max)
+    # print(malmo_max)
+    # print(lund_max)
+    # print(simrishamn_max)
 
-    print("\nMin-value")
-    print("City        Min Temp")
+    # print("\nMin-value")
+    # print("City        Min Temp")
     malmo_min =  df_malmo.min().to_string()
     lund_min = df_lund.min().to_string()
     simrishamn_min = df_simrishamn.min().to_string()
-    print(malmo_min)
-    print(lund_min)
-    print(simrishamn_min)
+    # print(lund_min)
+    # print(simrishamn_min)
+    table_data = [
+        ["Stad", "Medelvärde", "Standardavikelse", "Max Värde", "Min Värde"],
+        ["Malmö", cut(malmo_mean) + "C", cut(malmo_std) + "C", cut(malmo_max) + "C", cut(malmo_min) + "C"],
+        ["Simrishamn", cut(simrishamn_mean) + "C", cut(simrishamn_std) + "C", cut(simrishamn_max) + "C", cut(simrishamn_min) + "C"],
+        ["Lund", cut(lund_mean) + "C", cut(lund_std) + "C", cut(lund_max) + "C", cut(lund_min) + "C"],
+    ]
+    plt.axis('off')
+    table = plt.table(cellText=table_data, loc='center')
+    # fig.patch.set_visible(False)
+    table.set_fontsize(32)
+    table.scale(1,2)
+    # plt.axis('tight')
+    plt.title('Table of cities values')
+    fig.tight_layout()
+    fig.savefig('plot/table.png') 
+    # plt.show()
 
+def cut(string):
+    string = string.split("   ")
+    return string[1]
 
 def correlation():
     """
@@ -178,6 +198,7 @@ def correlation():
     linear_reg.fit(X, Y)
     Y_pred = linear_reg.predict(X)
     fig = plt.figure()
+
     residual = df['TempMalmo'].values - Y_pred.squeeze()
     df['Residual U'] = residual
     df['Residual U'].plot()
@@ -190,6 +211,7 @@ def correlation():
     fig.savefig('plot/correlation.png') 
 
 def normaldist():
+    #TODO: TRE OLIKA NORMALFÖRDELNINGAR MED HISTOGRAM I BAKGRUNDEN
     res = get_df()
     df_malmo = res[0]
     malmo_mean =  df_malmo.mean()
@@ -202,17 +224,41 @@ def normaldist():
     simrishamn_mean = df_simrishamn.mean()
     simrishamn_std = df_simrishamn.std()
 
-    fig = plt.figure('normal distribution on malmö, lund & simrishamn')
-    x = np.arange(float(malmo_mean)-30, float(malmo_mean)+30, 0.001)
-    plt.plot(x, norm.pdf(x, malmo_mean, malmo_std), color='blue', linewidth=4)
-    # plt.figure('normal distribution on lund')
-    x = np.arange(float(lund_mean)-30, float(lund_mean)+30, 0.001)
-    plt.plot(x, norm.pdf(x, lund_mean, lund_std), color='orange', linewidth=3)
-    # plt.figure('normal distribution on simrishamn')
-    x = np.arange(float(simrishamn_mean)-30, float(simrishamn_mean)+30, 0.001)
-    plt.plot(x, norm.pdf(x, simrishamn_mean, simrishamn_std), color='red', linewidth=2)
-    plt.legend(["Malmö", "Lund", "Simrishamn"])
-    fig.savefig('plot/normal_distribution.png', bbox_inches='tight', dpi=350)
+    fig = plt.figure('normal distribution on malmö')
+    # x = np.arange(float(malmo_mean)-30, float(malmo_mean)+30, 1)
+    # plt.plot(x, norm.pdf(x, malmo_mean, malmo_std), color='blue', linewidth=2)
+    # plt.hist(df_malmo)
+    plt.title("Malmö")
+    plt.hist(df_malmo, bins=25, density=True, alpha=0.6, color='b')
+    xmin, xmax = plt.xlim()
+    x = np.linspace(xmin-5, xmax+5, 100)
+    p = norm.pdf(x, malmo_mean, malmo_std)
+    plt.plot(x, p, 'k', linewidth=2)
+    fig.savefig('plot/normal_distribution_malmö.png', bbox_inches='tight', dpi=350)
+
+
+    fig = plt.figure('normal distribution on lund')
+    # x = np.arange(float(lund_mean)-30, float(lund_mean)+30, 0.001)
+    # plt.plot(x, norm.pdf(x, lund_mean, lund_std), color='orange', linewidth=2)
+    plt.title("Lund")
+    plt.hist(df_lund, bins=25, density=True, alpha=0.6, color='b')
+    xmin, xmax = plt.xlim()
+    x = np.linspace(xmin-5, xmax+5, 100)
+    p = norm.pdf(x, lund_mean, lund_std)
+    plt.plot(x, p, 'k', linewidth=2)
+    fig.savefig('plot/normal_distribution_lund.png', bbox_inches='tight', dpi=350)
+
+    fig = plt.figure('normal distribution on simrishamn')
+    # x = np.arange(float(simrishamn_mean)-30, float(simrishamn_mean)+30, 0.001)
+    # plt.plot(x, norm.pdf(x, simrishamn_mean, simrishamn_std), color='red', linewidth=2)
+    plt.title("Simrishamn")
+    plt.hist(df_simrishamn, bins=25, density=True, alpha=0.6, color='b')
+    xmin, xmax = plt.xlim()
+    x = np.linspace(xmin-2, xmax+7, 100)
+    p = norm.pdf(x, simrishamn_mean, simrishamn_std)
+    plt.plot(x, p, 'k', linewidth=2)
+    fig.savefig('plot/normal_distribution_simrishamn.png', bbox_inches='tight', dpi=350)
+
     plt.show()
 
 def linear_regression():
@@ -249,7 +295,6 @@ if __name__ == "__main__":
     
     dataframe = create_data_frame()
     # print(dataframe)
-    print_mean_std_max_min()
     draw_plot(dataframe)
     correlation()
     # print(type(dataframe))
@@ -261,5 +306,6 @@ if __name__ == "__main__":
     # print(correlation)
     # plt.figure(2)
 
+    print_mean_std_max_min()
     normaldist()
-    plt.show()
+    # plt.show()

@@ -66,33 +66,12 @@ också med fördel visualiseras i form av en heatmap (i python Seaborn.heatmap(k
 
 Till dessa tabeller ska också en kortare text om vad dessa värden säger om er data och om det går att
 dra några slutsatser utifrån den. -->
-<table>
-<tr>
-    <th>Stad</th>
-    <th>medelvärde</th>
-    <th>standardavvikelse</th>
-    <th>max-värde</th>
-    <th>min-värde</th>
-</tr>
-<tr>
-    <td>Malmö</td>
-    <td>11.0</td>
-    <td>6:00</td>
-    <td>2021-08-24</td>
-</tr>
-<tr>
-    <td>Lund</td>
-    <td>17.8</td>
-    <td>18:00</td>
-    <td>2021-08-24</td>
-</tr>
-<tr>
-    <td>Simrishamn</td>
-    <td>15.0</td>
-    <td>6:00</td>
-    <td>2021-08-25</td>
-</tr>
-</table>
+
+Tabell för varje stad med medelvärdet, standrardavvikelsen max värde och min värdet.
+![Alt text](plot/table.png "title") 
+
+Bild på correlationen
+![Alt text](plot/correlation.png "title")
 
 ### Korrelations tabell
 
