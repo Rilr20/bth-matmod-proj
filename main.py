@@ -118,7 +118,7 @@ def get_df():
 
 def print_mean_std_max_min():
     """
-    TODO: GÖR EN TABELL
+    DONE: GÖR EN TABELL
     Uppgift 2: Medelvärde, Standardavvikelse. 
     """
     res = get_df()
@@ -211,7 +211,7 @@ def correlation():
     fig.savefig('plot/correlation.png') 
 
 def normaldist():
-    #TODO: TRE OLIKA NORMALFÖRDELNINGAR MED HISTOGRAM I BAKGRUNDEN
+    #TODO:KLAR?!?! TRE OLIKA NORMALFÖRDELNINGAR MED HISTOGRAM I BAKGRUNDEN
     res = get_df()
     df_malmo = res[0]
     malmo_mean =  df_malmo.mean()
