@@ -104,8 +104,6 @@ def create_data_frame():
                     df["temp"].append(float(row[2]))
     return df
 
-
-
 def get_df():
     df_malmo = get_city("data/smhi-malmo_parsed.csv")
     df_malmo = df_malmo.rename(columns={'Lufttemperatur' : 'TempMalmo'})
@@ -114,7 +112,6 @@ def get_df():
     df_simrishamn = get_city("data/smhi-simrishamn_parsed.csv")
     df_simrishamn = df_simrishamn.rename(columns={'Lufttemperatur' : 'TempSimrishamn'})
     return [df_malmo, df_lund, df_simrishamn]
-
 
 def print_mean_std_max_min():
     """
@@ -262,19 +259,39 @@ def normaldist():
     plt.show()
 
 def linear_regression():
+    #minst 1 av variablarna
+    # rapportera variablerna a och bi  sambandet a+b*x
+    #punkskattningens konfidensintervall
     #med 95% confidensinterval
     res = get_df()
     df_malmo = res[0]
     df_lund = res[1]
     df_simrishamn = res[2]
 
+def transform_data():
+    #logaritmisk funktion
+    #ny regressions anlys
+    #transformera tillbaka modellen och data innan man plottar
+    res = get_df()
+    df_malmo = res[0]
+    df_lund = res[1]
+    df_simrishamn = res[2]
 
+def residual_analysis():
+    #e=y-^y plotta dem
+    #plotta residualerna mot normalfördelningen
+    #finns det beroenden?
+    #följer det normalfördelningen?
+    res = get_df()
+    df_malmo = res[0]
+    df_lund = res[1]
+    df_simrishamn = res[2]
 
 if __name__ == "__main__":
     get_data()
-    mean_test = mean([21.3232, 38.3422, 12.7212, 41.6178])
+    # mean_test = mean([21.3232, 38.3422, 12.7212, 41.6178])
     # print(mean_test)
-    std_test = std([21.3232, 38.3422, 12.7212, 41.6178])
+    # std_test = std([21.3232, 38.3422, 12.7212, 41.6178])
     # print(std_test)
     
     # print(simrishamn_data)
@@ -291,8 +308,6 @@ if __name__ == "__main__":
     # ax = sns.swarmplot(x="day", y="total_bill", data=data, color=".25")
     # plt.show()
 
-
-    
     dataframe = create_data_frame()
     # print(dataframe)
     draw_plot(dataframe)

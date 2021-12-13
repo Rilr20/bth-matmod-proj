@@ -1,4 +1,7 @@
 # Rikards Rilr20 Project 
+<!-- Inlämningen av projektet ska bestå av en skriftlig rapport där uppgift 1-7 besvaras med text och
+plottar, samt inlämning av all kod och data som använts i er analys. Uppgifterna löses i valfritt
+programmeringsspråk. -->
 
 ## Uppgift 1:Beskriv data
 <!-- Introducera den data som valts och beskriv vad den visar och varifrån den kommer. Cirka 250 ord
@@ -9,9 +12,9 @@ Det ska också finnas en visuell representation av hur datamängden ser ut, samt
 med förklaringar till vad som visas och om det finns några konstigheter (till exempel outliers i datan).
 Visualiseringen görs med lämplig plot, t.ex. stapeldiagram, linjediagram, scatterplot, cirkeldiagram
 etc. **Obs! Glöm inte att ange enheter på axlarna!** -->
-Jag har valt temperaturdata från SMHI. Datan är från 30 Augusti till 7 December 2021. Väderstationerna som valts är Karlskrona, Lund och Simrishamn. Tiderna för temperaturerna som kollas är klockan 6:00 och 18:00 på varje dag. 
+Jag har valt temperaturdata från SMHI. Datan är från 2 Augusti till 10 December 2021. Väderstationerna som valts är Malmö, Lund och Simrishamn. Tiderna för temperaturerna som kollas är klockan 6:00 och 18:00 på varje dag. 
 
-Exempel på data som används
+Exempel på datan som finns och används i programmet. 
 <table>
 <tr>
     <th>Stad</th>
@@ -64,8 +67,7 @@ standardavvikelse, max- och min-värde samt korrelationen mellan variablerna. Ko
 också med fördel visualiseras i form av en heatmap (i python Seaborn.heatmap(korrelation)).
 
 
-Till dessa tabeller ska också en kortare text om vad dessa värden säger om er data och om det går att
-dra några slutsatser utifrån den. -->
+Till dessa tabeller ska också en kortare text om vad dessa värden säger om er data och om det går att dra några slutsatser utifrån den. -->
 
 Tabell för varje stad med medelvärdet, standrardavvikelsen max värde och min värdet.
 ![Alt text](plot/table.png "title") 
@@ -73,7 +75,7 @@ Tabell för varje stad med medelvärdet, standrardavvikelsen max värde och min 
 Bild på correlationen
 ![Alt text](plot/correlation.png "title")
 
-### Korrelations tabell
+### Tabell på korrelationen
 
 <table>
 <tr>
