@@ -1,19 +1,22 @@
 import csv
-from os import name
-from posixpath import abspath, split
+# from os import name
+# from posixpath import abspath, split
 import numpy as np
+# from numpy.lib.function_base import percentile
 import pandas as pd
 import math
 from datetime import datetime
 import matplotlib.pyplot as plt
+# from pandas.io.parsers import read_table
 from sklearn.linear_model import LinearRegression
 import seaborn as sns
 from scipy.stats import norm
-import statistics
-#DONE: UPPGIFT 2 MAX OCH MIN VÄRDE
-#TODO: LINJÄR REGRESSION MED 95% KONFIDENSINTERVALL
+import scipy.stats as st
+
+#KLAR: UPPGIFT 2 MAX OCH MIN VÄRDE
+#TODO: LINJÄR REGRESSION MED 95% KONFIDENSINTERVALL KLAR?
 #TODO: TRANSFORMERAD DATA LOGARITMISK FUNKTION
-#TODO: RESIDUALANALYS
+#TODO: RESIDUALANALYS KLAR?
 #TODO: SAMMANFATTNING
 #TODO: MUNTLIG PRESENTATION
 #TODO: OPPONERING
@@ -36,7 +39,7 @@ def get_data():
                         # print("arg")
 
 def get_city(path):
-    data = pd.read_csv(path, delimiter=';') 
+    data = pd.read_csv(path, delimiter=';')
     # data['Datum'] = pd.to_datetime(data['Datum'].astype(str) + ' ' + data['Tid (UTC)'])
     # # data['Lufttemperatur'] = pd.to_numeric(data['Lufttemperatur']).astype(float)
     # data.drop(['Tid (UTC)', 'Unnamed: 4', 'Tidsutsnitt:', 'Kvalitet'], inplace=True, axis=1)
@@ -76,10 +79,10 @@ def draw_plot(data):
     fig = plt.figure(1)
     sns.set_theme(style='whitegrid')
     # tips = sns.load_dataset("tips")
-    plt.ylabel("celcius")
+    plt.ylabel("Celcius")
     ax = sns.boxplot(x="city", y="temp", hue="time", data=data)
     plt.title('Boxplot of temperature')
-    fig.savefig('plot/boxplot.png', bbox_inches='tight', dpi=150) 
+    fig.savefig('plot/boxplot.png', bbox_inches='tight', dpi=150)
 
     # ax = sns.lineplot(x="datetime", y="temp", hue="city", data=data)
     # ax = sns.swarmplot(x="city", y="temp", data=data, color=".25")
@@ -96,7 +99,7 @@ def create_data_frame():
         with open(f'data/smhi-{city}_parsed.csv', 'r') as file:
             reader = csv.reader(file, delimiter=';')
             for row in reader:
-                if len(row) > 0 and row[0] != "Datum":  
+                if len(row) > 0 and row[0] != "Datum":
                     # print(row)
                     df["city"].append(city)
                     df["datetime"].append(row[0] + " " + row[1])
@@ -116,7 +119,7 @@ def get_df():
 def print_mean_std_max_min():
     """
     DONE: GÖR EN TABELL
-    Uppgift 2: Medelvärde, Standardavvikelse. 
+    Uppgift 2: Medelvärde, Standardavvikelse.
     """
     res = get_df()
     df_malmo = res[0]
@@ -131,7 +134,7 @@ def print_mean_std_max_min():
     # print(malmo_mean)
     # print(lund_mean)
     # print(simrishamn_mean)
-    
+
     # print("\nstandard deviation of datas")
     # print("City        Standard Deviation")
     malmo_std = df_malmo.std().to_string()
@@ -171,7 +174,7 @@ def print_mean_std_max_min():
     # plt.axis('tight')
     plt.title('Table of cities values')
     fig.tight_layout()
-    fig.savefig('plot/table.png') 
+    fig.savefig('plot/table.png')
     # plt.show()
 
 def cut(string):
@@ -189,7 +192,7 @@ def correlation():
 
     df = pd.concat([df_lund, df_malmo, df_simrishamn], axis = 1)
     df = df.dropna()
-    X = df.index.map(datetime.toordinal).values.reshape(-1, 1) 
+    X = df.index.map(datetime.toordinal).values.reshape(-1, 1)
     Y = df.iloc[:,1].values.reshape(-1, 1)
     linear_reg = LinearRegression()
     linear_reg.fit(X, Y)
@@ -200,12 +203,12 @@ def correlation():
     df['Residual U'] = residual
     df['Residual U'].plot()
     residual_variance = df['Residual U'].var()
-   
+
     correlation = df[df.columns[[0,1,2]]].corr()
 
     sns.heatmap(correlation)
     plt.title('Correlation between sites')
-    fig.savefig('plot/correlation.png') 
+    fig.savefig('plot/correlation.png')
 
 def normaldist():
     #TODO:KLAR?!?! TRE OLIKA NORMALFÖRDELNINGAR MED HISTOGRAM I BAKGRUNDEN
@@ -226,47 +229,136 @@ def normaldist():
     # plt.plot(x, norm.pdf(x, malmo_mean, malmo_std), color='blue', linewidth=2)
     # plt.hist(df_malmo)
     plt.title("Malmö")
+    plt.grid()
     plt.hist(df_malmo, bins=25, density=True, alpha=0.6, color='b')
     xmin, xmax = plt.xlim()
-    x = np.linspace(xmin-5, xmax+5, 100)
+    x = np.linspace(malmo_mean-20, malmo_mean+20, 100)
     p = norm.pdf(x, malmo_mean, malmo_std)
     plt.plot(x, p, 'k', linewidth=2)
-    fig.savefig('plot/normal_distribution_malmö.png', bbox_inches='tight', dpi=350)
+    fig.savefig('plot/normal_distribution_malmo.png', bbox_inches='tight', dpi=450)
 
 
     fig = plt.figure('normal distribution on lund')
     # x = np.arange(float(lund_mean)-30, float(lund_mean)+30, 0.001)
     # plt.plot(x, norm.pdf(x, lund_mean, lund_std), color='orange', linewidth=2)
     plt.title("Lund")
+    plt.grid()
     plt.hist(df_lund, bins=25, density=True, alpha=0.6, color='b')
     xmin, xmax = plt.xlim()
-    x = np.linspace(xmin-5, xmax+5, 100)
+    x = np.linspace(lund_mean-20, lund_mean+20, 100)
     p = norm.pdf(x, lund_mean, lund_std)
     plt.plot(x, p, 'k', linewidth=2)
-    fig.savefig('plot/normal_distribution_lund.png', bbox_inches='tight', dpi=350)
+    fig.savefig('plot/normal_distribution_lund.png', bbox_inches='tight', dpi=450)
 
     fig = plt.figure('normal distribution on simrishamn')
     # x = np.arange(float(simrishamn_mean)-30, float(simrishamn_mean)+30, 0.001)
     # plt.plot(x, norm.pdf(x, simrishamn_mean, simrishamn_std), color='red', linewidth=2)
     plt.title("Simrishamn")
+    plt.grid()
     plt.hist(df_simrishamn, bins=25, density=True, alpha=0.6, color='b')
     xmin, xmax = plt.xlim()
-    x = np.linspace(xmin-2, xmax+7, 100)
+    x = np.linspace(simrishamn_mean-20, simrishamn_mean+20, 100)
     p = norm.pdf(x, simrishamn_mean, simrishamn_std)
     plt.plot(x, p, 'k', linewidth=2)
-    fig.savefig('plot/normal_distribution_simrishamn.png', bbox_inches='tight', dpi=350)
+    fig.savefig('plot/normal_distribution_simrishamn.png', bbox_inches='tight', dpi=450)
 
     plt.show()
 
+def get_slope_and_intersect(X, Y):
+    x = np.array(range(len(Y))).reshape(-1, 1)
+    # print(x)
+    x_mean = x.mean()
+    y_mean = Y.mean()
+    x_minus_x_mean = 0
+    y_minus_y_mean = 0
+    Sxy = 0
+    Sxx = 0
+    # print(x_mean)
+    # print(y_mean)
+    for item in x:
+        x_minus_x_mean = (item[0] - x_mean) + x_minus_x_mean
+        # print(item[0] - x_mean)
+    for item in Y:
+        y_minus_y_mean = (item[0] - y_mean) + y_minus_y_mean
+    for i in range(len(Y)):
+        Sxy = ((x[i] - x_mean)*(Y[i] - y_mean)) + Sxy
+        Sxx = ((x[i] - x_mean) ** 2) + Sxx
+
+    Slope = Sxy / Sxx
+    Intercept = y_mean - Slope * x_mean
+    # print(Slope)
+    # print(Intercept)
+    # print("A = " + Intercept + " B = " + Slope)
+    print(f'A = {Intercept} B = {Slope}')
+
 def linear_regression():
     #minst 1 av variablarna
-    # rapportera variablerna a och bi  sambandet a+b*x
+    #rapportera variablerna a och b i sambandet a+b*x
     #punkskattningens konfidensintervall
     #med 95% confidensinterval
     res = get_df()
     df_malmo = res[0]
     df_lund = res[1]
     df_simrishamn = res[2]
+
+    df = pd.concat([df_lund, df_malmo, df_simrishamn], axis = 1)
+    df = df.dropna()
+    X = df.index.map(datetime.toordinal).values.reshape(-1, 1)
+    Y = df.iloc[:,1].values.reshape(-1, 1)
+    get_slope_and_intersect(X,Y)
+
+    linear_reg = LinearRegression()
+    linear_reg.fit(X, Y)
+    y_prediction = linear_reg.predict(X)
+    fig = plt.figure('linear regression with confidence interval')
+    plt.grid()
+    plt.scatter(X,Y)
+    std = np.std(y_prediction)
+
+    Z = 1.96
+    serror = std / (math.sqrt(len(y_prediction)))
+    margin_or_error = serror * Z
+    print(f'intervals are {margin_or_error}')
+
+    # ax = sns.regplot(X,Y,x_ci=95)
+
+    plt.plot(X, y_prediction, "r")
+    plt.plot(X, y_prediction - margin_or_error, "g--")
+    plt.plot(X, y_prediction + margin_or_error, "g--")
+    plt.legend(["data","linear", "95% inerval"])
+    plt.ylabel("Celcius")
+    plt.xlabel("Date: 2 Aug - 10 Dec 2021")
+    plt.title('linear regression with confidence interval')
+
+    plt.show()
+    # popt, pcov = curve_fit(f, [X], [Y])
+    # lpb, upb = predband(df, X, Y, popt, f)
+    # plt.plot(df, lpb, 'k--',label='95% Prediction Band')
+    # plt.plot(df, upb, 'k--')
+
+    fig.savefig('plot/linear_regresion_of_temps.png', bbox_inches='tight', dpi=750)
+    # plt.show()
+    res = st.t.interval(alpha=0.95, df=len(df_lund)-1, loc=np.mean(df_lund), scale=st.sem(df_lund))
+    # print(res)
+    # # length = []
+    # # for i in range(0, len(df_malmo)):
+    # #     length.append(i)
+    # df = df_malmo
+    # df = df.dropna()
+    # X = df.index.map(datetime.toordinal).values.reshape(-1, 1)
+    # Y = df.iloc[:,1].values.reshape(-1, 1)
+    # # print(df_malmo.select_dtypes)
+    # # print(type(df_malmo))
+    # # print(df_malmo)
+    # # print(df_malmo['TempMalmo'].values)
+    # #Linear regression
+    # model = LinearRegression().fit(X,Y)
+    # print(f'Lower bound & Upper bound of Lund Temp: {res}')
+
+    #DATUM
+
+    #TEMP
+    # print(Y[2])
 
 def transform_data():
     #logaritmisk funktion
@@ -277,15 +369,170 @@ def transform_data():
     df_lund = res[1]
     df_simrishamn = res[2]
 
+    df = pd.concat([df_lund, df_malmo, df_simrishamn], axis = 1)
+    df = df.dropna()
+    X = df.index.map(datetime.toordinal).values.reshape(-1, 1)
+    Y = df.iloc[:,1].values.reshape(-1, 1)
+    # X = np.array(range(len(Y))).reshape(-1, 1)
+    # print(X)
+
+    constant = 10
+    y_min = np.min(Y)
+    if y_min < 0:
+        y_log = np.log(Y - y_min + constant)
+    else:
+        y_log = np.log(Y)
+    # for i in range(len(X)):
+    #     X[i] = i
+    # y_log = np.log(Y)
+    # plt.figure("y log")
+    # plt.scatter(X, y_log)
+
+    #linjär regression
+    linear_reg = LinearRegression()
+    linear_reg.fit(X, Y)
+    y_prediction = linear_reg.predict(X)
+
+    #LOG TIME
+
+    fig = plt.figure()
+    plt.scatter(X, y_log)
+    # print(y_log)
+
+    # Y_log = y_log.reshape(-1,1)
+    linear_reg.fit(X, y_log)
+    y_pred_log = linear_reg.predict(X)
+
+    plt.scatter(X, y_log)
+    plt.plot(X, y_pred_log, color='blue')
+    plt.legend(["predicted log y", "original log y"])
+    fig.savefig('plot/predicted_original_log.png', bbox_inches='tight', dpi=150)
+    #konvertera tillbaka
+    # for i in range(len(Y)):
+    #     Y[i] -= 273.15
+    # y_back = np.exp(y_pred_log)
+    if y_min < 0:
+        y_back = np.exp(y_pred_log + y_min - constant )
+    else:
+        y_back =np.exp(y_pred_log)
+    for i in range(len(y_back)):
+        #linjen var väldigt väldigt låg då talen var 0.000147
+        #genom att multiplicera med 100000
+        #Då talen 14.7 vilket är synligt på grafen
+        y_back[i] = y_back[i] * 100000
+    # print(X)
+
+    # #slår ihopa
+    fig = plt.figure("log regression converted back")
+    plt.scatter(X,Y)
+    #vanlig linjär regression
+    plt.plot(X, y_prediction, "r")
+    # print(y_back)
+    #log tillbaka till linjär
+    plt.plot(X, y_back, "g")
+    plt.legend(["original data","linear model", "log model"])
+    plt.title("Linear & Log regression")
+    plt.grid()
+    plt.ylabel("Celcius")
+    plt.xlabel("Date: 2 Aug - 10 Dec 2021")
+    fig.savefig('plot/log_linear_regression.png', bbox_inches='tight', dpi=150)
+
+
+    #RESIDUAL ANALYS
+    fig = plt.figure("residual analyz log")
+    residual = df['TempLund'].values - y_back.squeeze()
+    df['Residual_U'] = residual
+    df['Residual_U'].plot()
+    plt.title("log residual plot")
+    plt.grid()
+    residual_variance = df['Residual_U'].var()
+    fig.savefig('plot/residual_log_graph.png', bbox_inches='tight', dpi=150)
+    print('Residual variance of log: ' + str(residual_variance))
+
+    fig = plt.figure("normal distribution residual log")
+    plt.hist(df['Residual_U'], bins=25, density=True, alpha=0.6, color=['green'])
+    xmin, xmax = plt.xlim()
+    print(f'Mean of log regression residual: {df["Residual_U"].mean()}')
+
+    x = np.linspace(df['Residual_U'].mean()-20, df['Residual_U'].mean()+20, 100)
+    p = norm.pdf(x, df['Residual_U'].mean(), math.sqrt(residual_variance))
+    plt.plot(x, p, 'k', linewidth=2)
+    # plt.ylabel("Celcius")
+    plt.xlabel("Residuals")
+    plt.title("normal distribution residual on log")
+    plt.grid()
+    plt.show()
+    fig.savefig('plot/normal_distribution_residual_log.png', bbox_inches='tight', dpi=150)
+
+
 def residual_analysis():
     #e=y-^y plotta dem
     #plotta residualerna mot normalfördelningen
+    #varians = standardavvikelsen^2
     #finns det beroenden?
     #följer det normalfördelningen?
+    #residualerna är längden på sträckorna mellan de datapunkterna och regressionslinjen
+    #normalfödelningen på dem värderna
     res = get_df()
     df_malmo = res[0]
     df_lund = res[1]
     df_simrishamn = res[2]
+    df = pd.concat([df_lund, df_malmo, df_simrishamn], axis = 1)
+    df = df.dropna()
+
+
+    X = df.index.map(datetime.toordinal).values.reshape(-1, 1)  # Gör om datetime till uppräknelig data för prediktion
+    Y = df.iloc[:,1].values.reshape(-1, 1)
+
+    # Create linear regression model
+    linear_reg = LinearRegression()
+    linear_reg.fit(X, Y)
+    # Predict
+    y_prediction = linear_reg.predict(X)
+
+
+    # residual = df.iloc[:,1].values.reshape(-1, 1) - y_prediction.squeeze()
+    # print(df['TempLund'].values)
+    # print(y_prediction.squeeze())
+    fig = plt.figure("residual")
+    # print(df.iloc[:,1].values.reshape(-1, 1))
+    residual = df['TempLund'].values - y_prediction.squeeze()
+    df['Residual_U'] = residual
+    df['Residual_U'].plot()
+    plt.title("linear regressions residual plot")
+    plt.grid()
+    residual_variance = df['Residual_U'].var()
+    print('Residual variance: ' + str(residual_variance))
+    fig.savefig('plot/residual_regression_graph.png', bbox_inches='tight', dpi=150)
+    #ful jävla plot
+    # print(df['Residual_U'].mean())
+    # plt.figure()
+    # plt.scatter(X, Y)
+    # #linear regression
+    # plt.plot(X, y_prediction, color='green')
+
+
+    #sm plot
+    # model = ols('TempLund ~ Residual_U', data=df).fit()
+    # fig = sm.graphics.plot_regress_exog(model, 'Residual_U', fig=fig)
+    # fig.savefig('plot/residuals.png', bbox_inches='tight', dpi=850)
+    #Residual variance: 7.067127479902113
+    fig = plt.figure("normal distribution residual")
+    plt.hist(df['Residual_U'], bins=25, density=True, alpha=0.6, color=['green'])
+    xmin, xmax = plt.xlim()
+
+    print(f'Mean of linear regression residual: {df["Residual_U"].mean()}')
+    x = np.linspace(df['Residual_U'].mean()-20, df['Residual_U'].mean()+20, 100)
+    p = norm.pdf(x, df['Residual_U'].mean(), math.sqrt(residual_variance))
+    plt.plot(x, p, 'k', linewidth=2)
+    plt.title("normal distribution residual on regression")
+    plt.xlabel("Residuals")
+    plt.grid()
+    plt.show()
+    fig.savefig('plot/normal_distribution_residual.png', bbox_inches='tight', dpi=150)
+
+# def transforming_data():
+#     pass
 
 if __name__ == "__main__":
     get_data()
@@ -293,7 +540,7 @@ if __name__ == "__main__":
     # print(mean_test)
     # std_test = std([21.3232, 38.3422, 12.7212, 41.6178])
     # print(std_test)
-    
+
     # print(simrishamn_data)
     # print(mean(malmo_data))
     # print(mean(lund_data))
@@ -308,10 +555,7 @@ if __name__ == "__main__":
     # ax = sns.swarmplot(x="day", y="total_bill", data=data, color=".25")
     # plt.show()
 
-    dataframe = create_data_frame()
     # print(dataframe)
-    draw_plot(dataframe)
-    correlation()
     # print(type(dataframe))
     # new = pd.DataFrame.from_dict(dataframe)
     # print(new)
@@ -321,6 +565,13 @@ if __name__ == "__main__":
     # print(correlation)
     # plt.figure(2)
 
-    print_mean_std_max_min()
+    # print_mean_std_max_min()
+    # dataframe = create_data_frame()
+    # draw_plot(dataframe)
+
+    correlation()
     normaldist()
-    # plt.show()
+    linear_regression()
+    residual_analysis()
+    transform_data()
+    plt.show()
