@@ -14,11 +14,10 @@ from scipy.stats import norm
 import scipy.stats as st
 
 #KLAR: UPPGIFT 2 MAX OCH MIN VÄRDE
-#TODO: LINJÄR REGRESSION MED 95% KONFIDENSINTERVALL KLAR?
-#TODO: TRANSFORMERAD DATA LOGARITMISK FUNKTION
-#TODO: RESIDUALANALYS KLAR?
-#TODO: SAMMANFATTNING
-#TODO: MUNTLIG PRESENTATION
+#KLAR: LINJÄR REGRESSION MED 95% KONFIDENSINTERVALL KLAR?
+#KLAR: TRANSFORMERAD DATA LOGARITMISK FUNKTION
+#KLAR: RESIDUALANALYS KLAR?
+#KLAR: SAMMANFATTNING
 #TODO: OPPONERING
 def get_data():
     paths = ["data/smhi-malmo", "data/smhi-lund", "data/smhi-simrishamn"]
@@ -40,17 +39,7 @@ def get_data():
 
 def get_city(path):
     data = pd.read_csv(path, delimiter=';')
-    # data['Datum'] = pd.to_datetime(data['Datum'].astype(str) + ' ' + data['Tid (UTC)'])
-    # # data['Lufttemperatur'] = pd.to_numeric(data['Lufttemperatur']).astype(float)
-    # data.drop(['Tid (UTC)', 'Unnamed: 4', 'Tidsutsnitt:', 'Kvalitet'], inplace=True, axis=1)
-    # data = data.set_index('Datum')
-    # print(data)
-    # with open(path, "r") as file:
-    #         reader = csv.reader(file, delimiter=";")
-    #         for row in reader:
-    #             if len(row) > 0 and row[0] != 'Datum':
-    #                 data.append(float(row[2]))
-    #                 # print(row[2])
+
     data['Datum'] = pd.to_datetime(data['Datum'].astype(str) + ' ' + data['Tid (UTC)'])
     # Remove unused data columns
     data.drop(['Tid (UTC)', 'Unnamed: 4', 'Tidsutsnitt:', 'Kvalitet'], inplace=True, axis=1)
@@ -58,34 +47,15 @@ def get_city(path):
     # return df
     return data
 
-def mean(data):
-    res = 0
-    for item in data:
-        res = item + res
-    res = res / len(data)
-    return res
-
-def std(data):
-    res = 0
-    meanres = mean(data)
-    for item in data:
-        res = (item-meanres)**2 + res
-    res = res / (len(data)-1)
-    res = math.sqrt(res)
-    return round(res, 4)
-
 def draw_plot(data):
-    # print(data)
     fig = plt.figure(1)
     sns.set_theme(style='whitegrid')
-    # tips = sns.load_dataset("tips")
+
     plt.ylabel("Celcius")
     ax = sns.boxplot(x="city", y="temp", hue="time", data=data)
     plt.title('Boxplot of temperature')
     fig.savefig('plot/boxplot.png', bbox_inches='tight', dpi=150)
 
-    # ax = sns.lineplot(x="datetime", y="temp", hue="city", data=data)
-    # ax = sns.swarmplot(x="city", y="temp", data=data, color=".25")
 
 def create_data_frame():
     cities = ['malmo', 'lund', 'simrishamn']
@@ -168,14 +138,14 @@ def print_mean_std_max_min():
     ]
     plt.axis('off')
     table = plt.table(cellText=table_data, loc='center')
-    # fig.patch.set_visible(False)
+
     table.set_fontsize(32)
     table.scale(1,2)
-    # plt.axis('tight')
+
     plt.title('Table of cities values')
     fig.tight_layout()
     fig.savefig('plot/table.png')
-    # plt.show()
+
 
 def cut(string):
     string = string.split("   ")
@@ -211,7 +181,7 @@ def correlation():
     fig.savefig('plot/correlation.png')
 
 def normaldist():
-    #TODO:KLAR?!?! TRE OLIKA NORMALFÖRDELNINGAR MED HISTOGRAM I BAKGRUNDEN
+    #KLAR TRE OLIKA NORMALFÖRDELNINGAR MED HISTOGRAM I BAKGRUNDEN
     res = get_df()
     df_malmo = res[0]
     malmo_mean =  df_malmo.mean()
@@ -339,21 +309,8 @@ def linear_regression():
     fig.savefig('plot/linear_regresion_of_temps.png', bbox_inches='tight', dpi=750)
     # plt.show()
     res = st.t.interval(alpha=0.95, df=len(df_lund)-1, loc=np.mean(df_lund), scale=st.sem(df_lund))
-    # print(res)
-    # # length = []
-    # # for i in range(0, len(df_malmo)):
-    # #     length.append(i)
-    # df = df_malmo
-    # df = df.dropna()
-    # X = df.index.map(datetime.toordinal).values.reshape(-1, 1)
-    # Y = df.iloc[:,1].values.reshape(-1, 1)
-    # # print(df_malmo.select_dtypes)
-    # # print(type(df_malmo))
-    # # print(df_malmo)
-    # # print(df_malmo['TempMalmo'].values)
-    # #Linear regression
-    # model = LinearRegression().fit(X,Y)
-    # print(f'Lower bound & Upper bound of Lund Temp: {res}')
+
+
 
     #DATUM
 
@@ -420,7 +377,6 @@ def transform_data():
         #genom att multiplicera med 100000
         #Då talen 14.7 vilket är synligt på grafen
         y_back[i] = y_back[i] * 100000
-    # print(X)
 
     # #slår ihopa
     fig = plt.figure("log regression converted back")
@@ -481,7 +437,7 @@ def residual_analysis():
     df = df.dropna()
 
 
-    X = df.index.map(datetime.toordinal).values.reshape(-1, 1)  # Gör om datetime till uppräknelig data för prediktion
+    X = df.index.map(datetime.toordinal).values.reshape(-1, 1)
     Y = df.iloc[:,1].values.reshape(-1, 1)
 
     # Create linear regression model
@@ -504,18 +460,19 @@ def residual_analysis():
     residual_variance = df['Residual_U'].var()
     print('Residual variance: ' + str(residual_variance))
     fig.savefig('plot/residual_regression_graph.png', bbox_inches='tight', dpi=150)
-    #ful jävla plot
+
+
+    #ful plot
     # print(df['Residual_U'].mean())
     # plt.figure()
     # plt.scatter(X, Y)
     # #linear regression
     # plt.plot(X, y_prediction, color='green')
-
-
-    #sm plot
+    # sm plot
     # model = ols('TempLund ~ Residual_U', data=df).fit()
     # fig = sm.graphics.plot_regress_exog(model, 'Residual_U', fig=fig)
     # fig.savefig('plot/residuals.png', bbox_inches='tight', dpi=850)
+
     #Residual variance: 7.067127479902113
     fig = plt.figure("normal distribution residual")
     plt.hist(df['Residual_U'], bins=25, density=True, alpha=0.6, color=['green'])
@@ -536,38 +493,6 @@ def residual_analysis():
 
 if __name__ == "__main__":
     get_data()
-    # mean_test = mean([21.3232, 38.3422, 12.7212, 41.6178])
-    # print(mean_test)
-    # std_test = std([21.3232, 38.3422, 12.7212, 41.6178])
-    # print(std_test)
-
-    # print(simrishamn_data)
-    # print(mean(malmo_data))
-    # print(mean(lund_data))
-    # print(mean(simrishamn_data))
-    # data = [malmo_data, lund_data, simrishamn_data]
-    # plt.boxplot([malmo_data, lund_data, simrishamn_data])
-    # plt.bar(['malmo', "Lund", "Simrishamn"], [-5, 0, 5, 10])
-    # plt.xlabel(['malmo', "Lund", "Simrishamn"])
-    # plt.boxplot()
-    # ax = sns.stripplot(x="Pclass", y="Age",data=df)
-    # ax = sns.boxplot(x="day", y="total_bill", data=data)
-    # ax = sns.swarmplot(x="day", y="total_bill", data=data, color=".25")
-    # plt.show()
-
-    # print(dataframe)
-    # print(type(dataframe))
-    # new = pd.DataFrame.from_dict(dataframe)
-    # print(new)
-    # correlation = dataframe[dataframe.columns[[0,1,2]]].corr()
-    # sns.heatmap(correlation)
-    # plt.title('Correlation between sites')
-    # print(correlation)
-    # plt.figure(2)
-
-    # print_mean_std_max_min()
-    # dataframe = create_data_frame()
-    # draw_plot(dataframe)
 
     correlation()
     normaldist()
